@@ -2,6 +2,7 @@ defmodule TodoApp.List do
   @moduledoc """
   Functions for working with TodoList's
   """
+
   alias __MODULE__
   alias TodoApp.Todo
 
@@ -12,8 +13,8 @@ defmodule TodoApp.List do
 
   ## Examples
 
-      iex> TodoApp.List.new()
-      %TodoApp.List{auto_id: 1, entries: %{}}
+    iex> TodoApp.List.new()
+    %TodoApp.List{auto_id: 1, entries: %{}}
 
   """
   def new(entries \\ []) do
@@ -29,18 +30,18 @@ defmodule TodoApp.List do
 
   ## Examples
 
-      iex> List.new() |> List.add(Todo.new(~D[1984-01-01], "Buy tomatoes."))
-      %List{
-        auto_id: 2,
-        entries: %{
-          1 => %Todo{
-            completed: false,
-            date: ~D[1984-01-01],
-            id: 1,
-            title: "Buy tomatoes."
-          }
+    iex> TodoApp.List.new() |> TodoApp.List.add(TodoApp.Todo.new(~D[1984-01-01], "Buy tomatoes."))
+    %List{
+      auto_id: 2,
+      entries: %{
+        1 => %Todo{
+          completed: false,
+          date: ~D[1984-01-01],
+          id: 1,
+          title: "Buy tomatoes."
         }
       }
+    }
 
   """
   def add(
@@ -51,6 +52,63 @@ defmodule TodoApp.List do
     new_entries = Map.put(entries, auto_id, entry)
 
     %List{entries: new_entries, auto_id: auto_id + 1}
+  end
+
+  @doc """
+  Get returns a list of todos from an existing list
+
+  * get/1 returns a list of todos from a todo_list
+  * get/2 returns a list of all todos matching an id or a date
+
+  ## Examples
+    iex> todo_list = TodoApp.List.new() |> TodoApp.List.add(TodoApp.Todo.new(~D[1984-01-01], "Buy tomatoes."))
+    iex> todo_list |> List.get
+    [
+      %TodoApp.Todo{
+        completed: false,
+        date: ~D[1984-01-01],
+        id: 1,
+        title: "Buy tomatoes."
+      }
+    ]
+
+    iex> todo_list = TodoApp.List.new() |> TodoApp.List.add(TodoApp.Todo.new(~D[1984-01-01], "Buy tomatoes."))
+    iex> todo_list |> List.get(1)
+    [
+      %TodoApp.Todo{
+        completed: false,
+        date: ~D[1984-01-01],
+        id: 1,
+        title: "Buy tomatoes."
+      }
+    ]
+
+    iex> todo_list = TodoApp.List.new() |> TodoApp.List.add(TodoApp.Todo.new(~D[1984-01-01], "Buy tomatoes."))
+    iex> todo_list |> List.get(~D[1984-01-01])
+    [
+      %TodoApp.Todo{
+        completed: false,
+        date: ~D[1984-01-01],
+        id: 1,
+        title: "Buy tomatoes."
+      }
+    ]
+
+  """
+  def get(%List{entries: todos} = _) do
+    Enum.map(todos, fn {_, todo} -> todo end)
+  end
+
+  def get(%List{entries: todos} = _, id) when is_integer(id) do
+    todos
+    |> Stream.filter(fn {_, todo} -> todo.id == id end)
+    |> Enum.map(fn {_, todo} -> todo end)
+  end
+
+  def get(%List{entries: todos} = _, %Date{} = date) do
+    todos
+    |> Stream.filter(fn {_, todo} -> todo.date == date end)
+    |> Enum.map(fn {_, todo} -> todo end)
   end
 
   defimpl Collectable do

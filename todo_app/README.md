@@ -6,6 +6,7 @@ Supported Features are:
 
 * Creating new Lists and Entries with **List.new/0** and **Todo.new/0**
 * Adding Entries with **List.add/2**
+* Getting a list of all entries from a List with **List.get/1** and getting a list of entries matching date or id with **List.get/2**
 
 ## Some examples for usage in iex
 
@@ -102,5 +103,15 @@ iex(9)> for todo <- todos, into: TodoList.new, do: todo
     }
   }
 }
+
+iex(10)> todos |> List.get(~D[1984-01-01])
+[
+  %TodoApp.Todo{
+    completed: false,
+    date: ~D[1984-01-01],
+    id: 1,
+    title: "Buy tomatoes."
+  }
+]
 
 ```

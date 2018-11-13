@@ -4,8 +4,34 @@ defmodule TodoApp.ListTest do
 
   doctest List
 
+  @todo_one %Todo{
+    completed: false,
+    date: ~D[1984-01-01],
+    id: 1,
+    title: "Buy tomatoes."
+  }
+
+  @todo_two %Todo{
+    completed: false,
+    date: ~D[1984-01-01],
+    id: 2,
+    title: "Buy cucumbers."
+  }
+
   test "new/0 creates an empty %TodoApp.List{}" do
     assert List.new() == %List{auto_id: 1, entries: %{}}
+  end
+
+  test "new/1 creates a %TodoApp.List{} with the %Todo{}'s from the list'" do
+    expected_result = %List{
+      auto_id: 3,
+      entries: %{
+        1 => @todo_one,
+        2 => @todo_two
+      }
+    }
+
+    assert List.new([@todo_one, @todo_two]) == expected_result
   end
 
   test "add/2 adds a todo to an existing list" do
