@@ -52,4 +52,16 @@ defmodule TodoApp.List do
 
     %List{entries: new_entries, auto_id: auto_id + 1}
   end
+
+  defimpl Collectable do
+    def into(original) do
+      into_callback = fn
+        list, {:cont, todo} -> List.add(list, todo)
+        list, :done -> list
+        _list, :halt -> :ok
+      end
+
+      {original, into_callback}
+    end
+  end
 end
