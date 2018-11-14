@@ -5,10 +5,10 @@ Provides an API to intract with TodoLists and TodoEntries
 Supported Features are:
 
 * Creating new Lists and entries with **TodoList.new/0**/**TodoList.new/1** and **TodoEntry.new/0**
-* Adding single entry with **TodoList.add/2**
+* Adding a single entry with **TodoList.add/2**
 * Adding multiple entries from a collectable with **Enum.into/2**
-* Getting a list of all entries from a TodoList with **TodoList.get/1**
-* Getting a list of entries matching by date or id with **TodoList.get/2**
+* Getting a list of all entries from a TodoList with **TodoList.get_entries/1**
+* Getting a list of entries matching by date or id with **TodoList.get_entries/2**
 
 ## Some code examples in iex
 
@@ -104,7 +104,7 @@ iex(9)> for todo <- todos, into: TodoList.new, do: todo
   }
 }
 
-iex(10)> todos |> TodoList.get(~D[1984-01-01])
+iex(10)> todos |> TodoList.get_entries(~D[1984-01-01])
 [
   %TodoApp.TodoEntry{
     completed: false,
