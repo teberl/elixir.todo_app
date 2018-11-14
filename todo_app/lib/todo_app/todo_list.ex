@@ -1,40 +1,40 @@
-defmodule TodoApp.List do
+defmodule TodoApp.TodoList do
   @moduledoc """
   Functions for working with TodoList's
   """
 
   alias __MODULE__
-  alias TodoApp.Todo
+  alias TodoApp.TodoEntry
 
   defstruct auto_id: 1, entries: %{}
 
   @doc """
-  Creates an empty or prefilled List
+  Creates an empty or prefilled TodoList
 
   ## Examples
 
-    iex> TodoApp.List.new()
-    %TodoApp.List{auto_id: 1, entries: %{}}
+    iex> TodoApp.TodoList.new()
+    %TodoApp.TodoList{auto_id: 1, entries: %{}}
 
   """
   def new(entries \\ []) do
     Enum.reduce(
       entries,
-      %List{},
+      %TodoList{},
       &add(&2, &1)
     )
   end
 
   @doc """
-  Adds a todo to an existing list
+  Adds a todo to an existing TodoList
 
   ## Examples
 
-    iex> TodoApp.List.new() |> TodoApp.List.add(TodoApp.Todo.new(~D[1984-01-01], "Buy tomatoes."))
-    %List{
+    iex> TodoApp.TodoList.new() |> TodoApp.TodoList.add(TodoApp.TodoEntry.new(~D[1984-01-01], "Buy tomatoes."))
+    %TodoList{
       auto_id: 2,
       entries: %{
-        1 => %Todo{
+        1 => %TodoEntry{
           completed: false,
           date: ~D[1984-01-01],
           id: 1,
@@ -45,13 +45,13 @@ defmodule TodoApp.List do
 
   """
   def add(
-        %List{auto_id: auto_id, entries: entries} = _,
-        %Todo{} = entry
+        %TodoList{auto_id: auto_id, entries: entries} = _,
+        %TodoEntry{} = entry
       ) do
     entry = Map.put(entry, :id, auto_id)
     new_entries = Map.put(entries, auto_id, entry)
 
-    %List{entries: new_entries, auto_id: auto_id + 1}
+    %TodoList{entries: new_entries, auto_id: auto_id + 1}
   end
 
   @doc """
@@ -61,10 +61,10 @@ defmodule TodoApp.List do
   * get/2 returns a list of all todos matching an id or a date
 
   ## Examples
-    iex> todo_list = TodoApp.List.new() |> TodoApp.List.add(TodoApp.Todo.new(~D[1984-01-01], "Buy tomatoes."))
-    iex> todo_list |> List.get
+    iex> todo_list = TodoApp.TodoList.new() |> TodoApp.TodoList.add(TodoApp.TodoEntry.new(~D[1984-01-01], "Buy tomatoes."))
+    iex> todo_list |> TodoList.get
     [
-      %TodoApp.Todo{
+      %TodoApp.TodoEntry{
         completed: false,
         date: ~D[1984-01-01],
         id: 1,
@@ -72,10 +72,10 @@ defmodule TodoApp.List do
       }
     ]
 
-    iex> todo_list = TodoApp.List.new() |> TodoApp.List.add(TodoApp.Todo.new(~D[1984-01-01], "Buy tomatoes."))
-    iex> todo_list |> List.get(1)
+    iex> todo_list = TodoApp.TodoList.new() |> TodoApp.TodoList.add(TodoApp.TodoEntry.new(~D[1984-01-01], "Buy tomatoes."))
+    iex> todo_list |> TodoList.get(1)
     [
-      %TodoApp.Todo{
+      %TodoApp.TodoEntry{
         completed: false,
         date: ~D[1984-01-01],
         id: 1,
@@ -83,10 +83,10 @@ defmodule TodoApp.List do
       }
     ]
 
-    iex> todo_list = TodoApp.List.new() |> TodoApp.List.add(TodoApp.Todo.new(~D[1984-01-01], "Buy tomatoes."))
-    iex> todo_list |> List.get(~D[1984-01-01])
+    iex> todo_list = TodoApp.TodoList.new() |> TodoApp.TodoList.add(TodoApp.TodoEntry.new(~D[1984-01-01], "Buy tomatoes."))
+    iex> todo_list |> TodoList.get(~D[1984-01-01])
     [
-      %TodoApp.Todo{
+      %TodoApp.TodoEntry{
         completed: false,
         date: ~D[1984-01-01],
         id: 1,
@@ -95,17 +95,17 @@ defmodule TodoApp.List do
     ]
 
   """
-  def get(%List{entries: todos} = _) do
+  def get(%TodoList{entries: todos} = _) do
     Enum.map(todos, fn {_, todo} -> todo end)
   end
 
-  def get(%List{entries: todos} = _, id) when is_integer(id) do
+  def get(%TodoList{entries: todos} = _, id) when is_integer(id) do
     todos
     |> Stream.filter(fn {_, todo} -> todo.id == id end)
     |> Enum.map(fn {_, todo} -> todo end)
   end
 
-  def get(%List{entries: todos} = _, %Date{} = date) do
+  def get(%TodoList{entries: todos} = _, %Date{} = date) do
     todos
     |> Stream.filter(fn {_, todo} -> todo.date == date end)
     |> Enum.map(fn {_, todo} -> todo end)
@@ -114,7 +114,7 @@ defmodule TodoApp.List do
   defimpl Collectable do
     def into(original) do
       into_callback = fn
-        list, {:cont, todo} -> List.add(list, todo)
+        list, {:cont, todo} -> TodoList.add(list, todo)
         list, :done -> list
         _list, :halt -> :ok
       end
