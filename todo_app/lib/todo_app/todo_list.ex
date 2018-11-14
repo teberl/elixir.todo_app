@@ -57,12 +57,12 @@ defmodule TodoApp.TodoList do
   @doc """
   Get returns a list of todos from an existing list
 
-  * get/1 returns a list of todos from a todo_list
-  * get/2 returns a list of all todos matching an id or a date
+  * get_entries/1 returns a list of todos from a todo_list
+  * get_entries/2 returns a list of all todos matching an id or a date
 
   ## Examples
     iex> todo_list = TodoApp.TodoList.new() |> TodoApp.TodoList.add(TodoApp.TodoEntry.new(~D[1984-01-01], "Buy tomatoes."))
-    iex> todo_list |> TodoList.get
+    iex> todo_list |> TodoList.get_entries
     [
       %TodoApp.TodoEntry{
         completed: false,
@@ -73,7 +73,7 @@ defmodule TodoApp.TodoList do
     ]
 
     iex> todo_list = TodoApp.TodoList.new() |> TodoApp.TodoList.add(TodoApp.TodoEntry.new(~D[1984-01-01], "Buy tomatoes."))
-    iex> todo_list |> TodoList.get(1)
+    iex> todo_list |> TodoList.get_entries(1)
     [
       %TodoApp.TodoEntry{
         completed: false,
@@ -84,7 +84,7 @@ defmodule TodoApp.TodoList do
     ]
 
     iex> todo_list = TodoApp.TodoList.new() |> TodoApp.TodoList.add(TodoApp.TodoEntry.new(~D[1984-01-01], "Buy tomatoes."))
-    iex> todo_list |> TodoList.get(~D[1984-01-01])
+    iex> todo_list |> TodoList.get_entries(~D[1984-01-01])
     [
       %TodoApp.TodoEntry{
         completed: false,
@@ -95,17 +95,17 @@ defmodule TodoApp.TodoList do
     ]
 
   """
-  def get(%TodoList{entries: todos} = _) do
+  def get_entries(%TodoList{entries: todos} = _) do
     Enum.map(todos, fn {_, todo} -> todo end)
   end
 
-  def get(%TodoList{entries: todos} = _, id) when is_integer(id) do
+  def get_entries(%TodoList{entries: todos} = _, id) when is_integer(id) do
     todos
     |> Stream.filter(fn {_, todo} -> todo.id == id end)
     |> Enum.map(fn {_, todo} -> todo end)
   end
 
-  def get(%TodoList{entries: todos} = _, %Date{} = date) do
+  def get_entries(%TodoList{entries: todos} = _, %Date{} = date) do
     todos
     |> Stream.filter(fn {_, todo} -> todo.date == date end)
     |> Enum.map(fn {_, todo} -> todo end)
