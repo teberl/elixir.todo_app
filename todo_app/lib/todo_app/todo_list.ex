@@ -111,6 +111,11 @@ defmodule TodoApp.TodoList do
     |> Enum.map(fn {_, todo} -> todo end)
   end
 
+  def delete_entry(%TodoList{auto_id: auto_id, entries: todos}, id) when is_integer(id) do
+    new_todos = Map.delete(todos, id)
+    %TodoList{auto_id: auto_id, entries: new_todos}
+  end
+
   defimpl Collectable do
     def into(original) do
       into_callback = fn

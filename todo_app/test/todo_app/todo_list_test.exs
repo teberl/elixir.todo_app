@@ -91,4 +91,33 @@ defmodule TodoApp.TodoListTest do
 
     assert Enum.into(todos, TodoList.new()) == expected_result
   end
+
+  test "TodoList.delete/2 deletes the corresponding %TodoEntry{} from the %TodoList{}" do
+    todos = [
+      TodoEntry.new(~D[1984-01-01], "Buy fish."),
+      TodoEntry.new(~D[1984-01-01], "Buy chips."),
+      TodoEntry.new(~D[1984-01-01], "Buy beer.")
+    ]
+
+    expected_result = %TodoList{
+      auto_id: 4,
+      entries: %{
+        1 => %TodoEntry{
+          completed: false,
+          date: ~D[1984-01-01],
+          id: 1,
+          title: "Buy fish."
+        },
+        3 => %TodoEntry{
+          completed: false,
+          date: ~D[1984-01-01],
+          id: 3,
+          title: "Buy beer."
+        }
+      }
+    }
+
+    assert TodoList.new(todos)
+           |> TodoList.delete_entry(2) == expected_result
+  end
 end
