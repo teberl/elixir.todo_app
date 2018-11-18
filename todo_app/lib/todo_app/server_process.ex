@@ -6,6 +6,15 @@ defmodule TodoApp.ServerProcess do
     end)
   end
 
+  def call(server_pid, request) do
+    send(server_pid, {request, self()})
+
+    receive do
+      {:response, response} ->
+        response
+    end
+  end
+
   defp loop(callback_module, current_state) do
     receive do
       {request, caller} ->
@@ -16,6 +25,7 @@ defmodule TodoApp.ServerProcess do
           )
 
         send(caller, {:response, response})
+
         loop(callback_module, new_state)
     end
   end

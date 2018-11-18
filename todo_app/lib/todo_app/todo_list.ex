@@ -26,7 +26,7 @@ defmodule TodoApp.TodoList do
   end
 
   @doc """
-  Adds a todo to an existing TodoList
+  Adds a todo to an existing TodoList and return the updated TodoList
 
   ## Examples
 

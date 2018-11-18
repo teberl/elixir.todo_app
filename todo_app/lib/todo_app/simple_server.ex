@@ -1,4 +1,4 @@
-defmodule TodoApp.Server do
+defmodule TodoApp.SimpleServer do
   alias TodoApp.{TodoList, TodoEntry}
 
   def start do
