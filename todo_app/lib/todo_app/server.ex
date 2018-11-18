@@ -2,15 +2,17 @@ defmodule TodoApp.Server do
   alias TodoApp.{TodoList, TodoEntry}
 
   def start do
-    spawn(fn -> loop(TodoList.new()) end)
+    pid = spawn(fn -> loop(TodoList.new()) end)
+    Process.register(pid, :todo_server)
+    nil
   end
 
-  def add_entry(todo_server, %TodoEntry{} = new_entry) do
-    send(todo_server, {:add_entry, new_entry})
+  def add_entry(%TodoEntry{} = new_entry) do
+    send(:todo_server, {:add_entry, new_entry})
   end
 
-  def get_entries(todo_server) do
-    send(todo_server, {:get_entries, self()})
+  def get_entries() do
+    send(:todo_server, {:get_entries, self()})
 
     receive do
       {:todo_list, todo_list} ->
@@ -18,13 +20,17 @@ defmodule TodoApp.Server do
     end
   end
 
-  def get_entries(todo_server, %Date{} = date) do
-    send(todo_server, {:get_entries, self(), date})
+  def get_entries(%Date{} = date) do
+    send(:todo_server, {:get_entries, self(), date})
 
     receive do
       {:todo_list, todo_list} ->
         get_description_text(todo_list)
     end
+  end
+
+  def delete_entry(id) when is_integer(id) do
+    send(:todo_server, {:delete_entry, id})
   end
 
   defp loop(todo_list) do
@@ -51,6 +57,11 @@ defmodule TodoApp.Server do
     todos_by_date = TodoList.get_entries(todo_list, date)
     send(caller, {:todo_list, todos_by_date})
     todo_list
+  end
+
+  defp process_message(todo_list, {:delete_entry, id}) do
+    todo_list
+    |> TodoList.delete_entry(id)
   end
 
   defp process_message(todo_list, _) do
