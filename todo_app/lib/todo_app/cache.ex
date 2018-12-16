@@ -1,7 +1,7 @@
 defmodule TodoApp.Cache do
   use GenServer
 
-  alias TodoApp.Server
+  alias TodoApp.{Database, Server}
 
   def start() do
     GenServer.start(__MODULE__, nil)
@@ -13,6 +13,7 @@ defmodule TodoApp.Cache do
 
   @impl GenServer
   def init(_) do
+    Database.start()
     {:ok, %{}}
   end
 
@@ -23,7 +24,7 @@ defmodule TodoApp.Cache do
         {:reply, todo_server, todo_servers}
 
       :error ->
-        {:ok, todo_server_pid} = Server.start()
+        {:ok, todo_server_pid} = Server.start(todo_list_name)
 
         {
           :reply,
