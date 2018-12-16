@@ -1,4 +1,8 @@
-defmodule TodoApp.ServerProcess do
+defmodule TodoApp.ServerProcess.Server do
+  @moduledoc """
+  Basic implementation of a generic server process
+  """
+
   def start(callback_module) do
     spawn(fn ->
       initial_state = callback_module.init()

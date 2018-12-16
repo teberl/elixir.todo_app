@@ -1,4 +1,8 @@
-defmodule TodoApp.SimpleServer do
+defmodule TodoApp.SimpleServer.Server do
+  @moduledoc """
+  First iteration of a manual server implementation by using the TodoApp modules.
+  """
+
   alias TodoApp.{TodoList, TodoEntry}
 
   def start do

@@ -1,30 +1,36 @@
-defmodule TodoApp.TodoStore do
+defmodule TodoApp.ServerProcess.TodoStore do
+  @moduledoc """
+  Implementation of the TodoApp server using the custom ServerProcess and
+  the TodoApp modules.
+  """
+
   alias __MODULE__
-  alias TodoApp.{ServerProcess, TodoList, TodoEntry}
+  alias TodoApp.ServerProcess.Server
+  alias TodoApp.{TodoList, TodoEntry}
 
   # INTERFACE FUNCTIONS FOR THE CLIENT
   def start() do
-    ServerProcess.start(TodoStore)
+    Server.start(TodoStore)
   end
 
   def get(pid) do
-    ServerProcess.call(pid, {:get_all})
-  end
-
-  def get(pid, id) do
-    ServerProcess.call(pid, {:get_by_id, id})
+    Server.call(pid, {:get_all})
   end
 
   def get(pid, %Date{} = date) do
-    ServerProcess.call(pid, {:get_by_date, date})
+    Server.call(pid, {:get_by_date, date})
+  end
+
+  def get(pid, id) do
+    Server.call(pid, {:get_by_id, id})
   end
 
   def put(pid, %TodoEntry{} = entry) do
-    ServerProcess.cast(pid, {:put, entry})
+    Server.cast(pid, {:put, entry})
   end
 
   def delete(pid, id) do
-    ServerProcess.cast(pid, {:delete, id})
+    Server.cast(pid, {:delete, id})
   end
 
   # CALLBACK FUNCTIONS USED INTERNALLY BY THE GENERIC CODE
@@ -41,7 +47,7 @@ defmodule TodoApp.TodoStore do
   end
 
   def handle_call({:get_by_date, date}, state) do
-    {TodoList.get_entries(state, id), state}
+    {TodoList.get_entries(state, date), state}
   end
 
   def handle_cast({:put, entry}, state) do
