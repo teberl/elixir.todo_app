@@ -22,3 +22,5 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 todo_app-*.tar
 
+# The directory ElixirLS will use to store project information.
+/.elixir_ls/

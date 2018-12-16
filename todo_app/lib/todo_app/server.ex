@@ -1,64 +1,46 @@
 defmodule TodoApp.Server do
-  alias TodoApp.{TodoList, TodoEntry}
+  use GenServer
 
-  def start do
-    spawn(fn -> loop(TodoList.new()) end)
+  alias TodoApp.{Entry, List}
+
+  def start(), do: GenServer.start(__MODULE__, nil, [])
+
+  def put(pid, %Entry{} = entry), do: GenServer.cast(pid, {:put, entry})
+
+  def get(pid), do: GenServer.call(pid, {:get_all})
+  def get(pid, id) when is_integer(id), do: GenServer.call(pid, {:get_by_id, id})
+  def get(pid, %Date{} = date), do: GenServer.call(pid, {:get_by_date, date})
+  def get(pid, _), do: GenServer.call(pid, {:get_all})
+
+  def delete(pid, id) when is_integer(id), do: GenServer.cast(pid, {:delete, id})
+
+  @impl GenServer
+  def init(_args) do
+    {:ok, List.new()}
   end
 
-  def add_entry(todo_server, %TodoEntry{} = new_entry) do
-    send(todo_server, {:add_entry, new_entry})
+  @impl GenServer
+  def handle_cast({:put, entry}, state) do
+    {:noreply, List.add(state, entry)}
   end
 
-  def get_entries(todo_server) do
-    send(todo_server, {:get_entries, self()})
-
-    receive do
-      {:todo_list, todo_list} ->
-        get_description_text(todo_list)
-    end
+  @impl GenServer
+  def handle_cast({:delete, id}, state) do
+    {:noreply, List.delete_entry(state, id)}
   end
 
-  def get_entries(todo_server, %Date{} = date) do
-    send(todo_server, {:get_entries, self(), date})
-
-    receive do
-      {:todo_list, todo_list} ->
-        get_description_text(todo_list)
-    end
+  @impl GenServer
+  def handle_call({:get_all}, _, state) do
+    {:reply, List.get_entries(state), state}
   end
 
-  defp loop(todo_list) do
-    new_todo_list =
-      receive do
-        message ->
-          process_message(todo_list, message)
-      end
-
-    loop(new_todo_list)
+  @impl GenServer
+  def handle_call({:get_by_date, date}, _, state) do
+    {:reply, List.get_entries(state, date), state}
   end
 
-  defp process_message(todo_list, {:add_entry, new_entry}) do
-    todo_list
-    |> TodoList.add(new_entry)
-  end
-
-  defp process_message(todo_list, {:get_entries, caller}) do
-    send(caller, {:todo_list, TodoList.get_entries(todo_list)})
-    todo_list
-  end
-
-  defp process_message(todo_list, {:get_entries, caller, date}) do
-    todos_by_date = TodoList.get_entries(todo_list, date)
-    send(caller, {:todo_list, todos_by_date})
-    todo_list
-  end
-
-  defp process_message(todo_list, _) do
-    todo_list
-  end
-
-  defp get_description_text(entries) do
-    entries
-    |> Enum.map(&"#{&1.title} until #{Date.to_iso8601(&1.date)}")
+  @impl GenServer
+  def handle_call({:get_by_id, id}, _, state) do
+    {:reply, List.get_entries(state, id), state}
   end
 end

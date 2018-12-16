@@ -1,11 +1,11 @@
-defmodule TodoApp.TodoEntryTest do
+defmodule TodoApp.EntryTest do
   use ExUnit.Case
-  alias TodoApp.TodoEntry
+  alias TodoApp.Entry
 
-  doctest TodoEntry
+  doctest Entry
 
-  test "new/2 creates a %TodoEntry{}" do
-    assert TodoEntry.new(~D[1984-01-01], "Buy tomatoes.") == %TodoEntry{
+  test "new/2 creates a %Entry{}" do
+    assert Entry.new(~D[1984-01-01], "Buy tomatoes.") == %Entry{
              completed: false,
              date: ~D[1984-01-01],
              id: nil,
@@ -14,8 +14,8 @@ defmodule TodoApp.TodoEntryTest do
   end
 
   test "new/2 raises an error for invalid or missing arguments" do
-    assert_raise UndefinedFunctionError, fn -> TodoEntry.new() end
-    assert_raise FunctionClauseError, fn -> TodoEntry.new("1984-01-01", "Buy tomatoes.") end
-    assert_raise FunctionClauseError, fn -> TodoEntry.new(~D[1984-01-01], :tomatoes) end
+    assert_raise UndefinedFunctionError, fn -> Entry.new() end
+    assert_raise FunctionClauseError, fn -> Entry.new("1984-01-01", "Buy tomatoes.") end
+    assert_raise FunctionClauseError, fn -> Entry.new(~D[1984-01-01], :tomatoes) end
   end
 end
