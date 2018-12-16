@@ -3,13 +3,13 @@ defmodule TodoApp.SimpleServer.Server do
   First iteration of a manual server implementation by using the TodoApp modules.
   """
 
-  alias TodoApp.{TodoList, TodoEntry}
+  alias TodoApp.{List, Entry}
 
   def start do
-    spawn(fn -> loop(TodoList.new()) end)
+    spawn(fn -> loop(List.new()) end)
   end
 
-  def add_entry(todo_server, %TodoEntry{} = new_entry) do
+  def add_entry(todo_server, %Entry{} = new_entry) do
     send(todo_server, {:add_entry, new_entry})
   end
 
@@ -43,16 +43,16 @@ defmodule TodoApp.SimpleServer.Server do
 
   defp process_message(todo_list, {:add_entry, new_entry}) do
     todo_list
-    |> TodoList.add(new_entry)
+    |> List.add(new_entry)
   end
 
   defp process_message(todo_list, {:get_entries, caller}) do
-    send(caller, {:todo_list, TodoList.get_entries(todo_list)})
+    send(caller, {:todo_list, List.get_entries(todo_list)})
     todo_list
   end
 
   defp process_message(todo_list, {:get_entries, caller, date}) do
-    todos_by_date = TodoList.get_entries(todo_list, date)
+    todos_by_date = List.get_entries(todo_list, date)
     send(caller, {:todo_list, todos_by_date})
     todo_list
   end

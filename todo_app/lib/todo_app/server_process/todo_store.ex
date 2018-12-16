@@ -4,13 +4,12 @@ defmodule TodoApp.ServerProcess.TodoStore do
   the TodoApp modules.
   """
 
-  alias __MODULE__
   alias TodoApp.ServerProcess.Server
-  alias TodoApp.{TodoList, TodoEntry}
+  alias TodoApp.{List, Entry}
 
   # INTERFACE FUNCTIONS FOR THE CLIENT
   def start() do
-    Server.start(TodoStore)
+    Server.start(__MODULE__)
   end
 
   def get(pid) do
@@ -25,7 +24,7 @@ defmodule TodoApp.ServerProcess.TodoStore do
     Server.call(pid, {:get_by_id, id})
   end
 
-  def put(pid, %TodoEntry{} = entry) do
+  def put(pid, %Entry{} = entry) do
     Server.cast(pid, {:put, entry})
   end
 
@@ -35,26 +34,26 @@ defmodule TodoApp.ServerProcess.TodoStore do
 
   # CALLBACK FUNCTIONS USED INTERNALLY BY THE GENERIC CODE
   def init do
-    TodoList.new()
+    List.new()
   end
 
   def handle_call({:get_all}, state) do
-    {TodoList.get_entries(state), state}
+    {List.get_entries(state), state}
   end
 
   def handle_call({:get_by_id, id}, state) do
-    {TodoList.get_entries(state, id), state}
+    {List.get_entries(state, id), state}
   end
 
   def handle_call({:get_by_date, date}, state) do
-    {TodoList.get_entries(state, date), state}
+    {List.get_entries(state, date), state}
   end
 
   def handle_cast({:put, entry}, state) do
-    TodoList.add(state, entry)
+    List.add(state, entry)
   end
 
   def handle_cast({:delete, id}, state) do
-    TodoList.delete_entry(state, id)
+    List.delete_entry(state, id)
   end
 end

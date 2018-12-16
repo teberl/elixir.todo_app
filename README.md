@@ -2,4 +2,4 @@
 
 ## TodoApp
 
-Application logic to create and work with TodoItems and TodoLists
+Application logic to create and work with TodoItems and Lists
