@@ -1,9 +1,9 @@
 defmodule TodoApp.Server do
   use GenServer
 
-  alias TodoApp.{Entry, List}
+  alias TodoApp.{Entry, List, Database}
 
-  def start(), do: GenServer.start(__MODULE__, nil, [])
+  def start(list_name), do: GenServer.start(__MODULE__, list_name, [])
 
   def put(pid, %Entry{} = entry), do: GenServer.cast(pid, {:put, entry})
 
@@ -15,32 +15,42 @@ defmodule TodoApp.Server do
   def delete(pid, id) when is_integer(id), do: GenServer.cast(pid, {:delete, id})
 
   @impl GenServer
-  def init(_args) do
-    {:ok, List.new()}
+  def init(list_name) do
+    send(self(), {:real_init, list_name})
+    {:ok, nil}
   end
 
   @impl GenServer
-  def handle_cast({:put, entry}, state) do
-    {:noreply, List.add(state, entry)}
+  def handle_info({:real_init, list_name}, _state) do
+    {:noreply, {list_name, Database.get(list_name) || List.new()}}
   end
 
   @impl GenServer
-  def handle_cast({:delete, id}, state) do
-    {:noreply, List.delete_entry(state, id)}
+  def handle_cast({:put, entry}, {list_name, entries}) do
+    new_list = List.add(entries, entry)
+    Database.store(list_name, new_list)
+    {:noreply, {list_name, new_list}}
   end
 
   @impl GenServer
-  def handle_call({:get_all}, _, state) do
-    {:reply, List.get_entries(state), state}
+  def handle_cast({:delete, id}, {list_name, entries}) do
+    new_list = List.delete_entry(entries, id)
+    Database.store(list_name, new_list)
+    {:noreply, {list_name, new_list}}
   end
 
   @impl GenServer
-  def handle_call({:get_by_date, date}, _, state) do
-    {:reply, List.get_entries(state, date), state}
+  def handle_call({:get_all}, _, {_list_name, entries} = state) do
+    {:reply, List.get_entries(entries), state}
   end
 
   @impl GenServer
-  def handle_call({:get_by_id, id}, _, state) do
-    {:reply, List.get_entries(state, id), state}
+  def handle_call({:get_by_date, date}, _, {_list_name, entries} = state) do
+    {:reply, List.get_entries(entries, date), state}
+  end
+
+  @impl GenServer
+  def handle_call({:get_by_id, id}, _, {_list_name, entries} = state) do
+    {:reply, List.get_entries(entries, id), state}
   end
 end
