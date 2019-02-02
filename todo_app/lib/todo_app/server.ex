@@ -1,9 +1,15 @@
 defmodule TodoApp.Server do
-  use GenServer
+  use GenServer, restart: :temporary
 
-  alias TodoApp.{Entry, List, Database}
+  alias TodoApp.{Entry, List, Database, ProcessRegistry}
 
-  def start(list_name), do: GenServer.start(__MODULE__, list_name, [])
+  def start_link(list_name) do
+    GenServer.start_link(
+      __MODULE__,
+      list_name,
+      name: via_tuple(list_name)
+    )
+  end
 
   def put(pid, %Entry{} = entry), do: GenServer.cast(pid, {:put, entry})
 
@@ -16,6 +22,8 @@ defmodule TodoApp.Server do
 
   @impl GenServer
   def init(list_name) do
+    IO.puts("Starting server for #{list_name}")
+
     send(self(), {:real_init, list_name})
     {:ok, nil}
   end
@@ -52,5 +60,9 @@ defmodule TodoApp.Server do
   @impl GenServer
   def handle_call({:get_by_id, id}, _, {_list_name, entries} = state) do
     {:reply, List.get_entries(entries, id), state}
+  end
+
+  defp via_tuple(name) do
+    ProcessRegistry.via_tuple({__MODULE__, name})
   end
 end
